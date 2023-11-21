@@ -112,7 +112,7 @@ void loop() {
         serialPrintGPSTime();
 
         temperatureC = getTemp();
-        depth = distanceSensor.distanceCallback();
+        depth = result.cm();
 
         // If GPS gets a fix, print out and save good data
         if (GPS.fix) {  
@@ -136,6 +136,10 @@ float distanceCallback(JSN_SR04_Gen3::DistanceResult result) {
         case JSN_SR04_Gen3::DistanceResult::Status::SUCCESS:
             Serial.printf("cm=%f inch=%f", result.cm(), result.inch());
             depth = result.cm();
+            dataFile.print(result.cm());
+            dataFile.print(",");
+            dataFile.print(result.inch());
+            dataFile.print(",");
             break;
 
         case JSN_SR04_Gen3::DistanceResult::Status::RANGE_ERROR:
@@ -246,8 +250,11 @@ void printToFile() {
     dataFile.print(",");
 
     // Depth/distance
-    dataFile.print(depth);
-    dataFile.print(",");
+    //dataFile.print(depth);
+    //dataFile.print(",");
+    JSN_SR04_Gen3::DistanceResult result = distanceSesnor.getDistance();
+    float distance = distanceCallback(result);
+    dataFile.print(distance);
 
     //Altitude
     dataFile.print(GPS.altitude);
